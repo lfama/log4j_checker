@@ -1,4 +1,5 @@
 # Log4j_checker.py (CVE-2021-44228)
+![poc_log4j](https://user-images.githubusercontent.com/14056990/145903643-9f46cbb1-cbe4-488a-8e64-7c4f7b1c39c7.PNG)
 
 ## Description
 
