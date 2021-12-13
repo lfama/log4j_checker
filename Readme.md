@@ -25,7 +25,7 @@ usage: log4j_checker.py [-h] [--url URL] [--headers HEADERS [HEADERS ...]] [--ur
 
 optional arguments:
   -h, --help            show this help message and exit
-  --url URL             Single url you want to test
+  --url URL             Single url you want to test (valid url is http(s)://host:[port]/[path])
   --headers HEADERS [HEADERS ...]
                         Custom headers you want to try (space separated)
   --urls URLS           A file containing 1 url per line

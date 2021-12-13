@@ -13,6 +13,22 @@ from termcolor import cprint
 headers = ["User-Agent", "X-Forwarded-For", "Referer"]
 
 
+def parseUrl(url):
+    parsed_uri = urlparse(url)
+    scheme = parsed_uri.scheme
+    if scheme != 'http' and scheme != 'https':
+        raise Exception(f"[E] Unsupported schema {scheme}")
+    hostname = parsed_uri.hostname
+    try:
+        ip = socket.gethostbyname(hostname)
+    except Exception as e:
+        raise e
+    port = parsed_uri.port
+    if port == None:
+        port = 80 if scheme == 'http' else 443
+    return ip, port
+
+
 def getUrlsFromFile(path):
     with open(path) as f:
         lines = [line for line in f.read().splitlines() if line.strip()]
@@ -75,7 +91,7 @@ def performRequest(form, socket_ip_port):
 
 def log4jExploit(q, url, port, ip, skip_forms):
 
-    # Quick (and dumb) hack to avoid requests timeout when port 80/443 is closed
+    # Quick (and dumb) hack to avoid requests timeout when destination port is closed
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(1)
@@ -128,7 +144,7 @@ def serverThread(q, s):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--url", help="Single url you want to test")
+    parser.add_argument("--url", help="Single url you want to test (valid url is http(s)://host:[port]/[path])")
     parser.add_argument("--headers", nargs='+',
                         help="Custom headers you want to try (space separated)")
     parser.add_argument("--urls", help="A file containing 1 url per line")
@@ -160,21 +176,21 @@ def main():
     server_socket.bind((HOST, PORT))
     server_socket.listen()
 
+    cprint(f"[*] *** Log4j_checker.py *** a Python3 scanner for CVE-2021-44228, better known as Log4Shell.\n[*] Author: lfama - https://github.com/lfama/log4j_checker", color='magenta', attrs=['bold'])
+    cprint(
+        f"[*] Starting server at address {os.getenv('IP')} and port {PORT} waiting for callbacks..", color='magenta')
+
     q = Queue()
     t1 = threading.Thread(target=serverThread, args=(q, server_socket))
     t1.start()
 
     for url in urls:
         try:
-            parsed_uri = urlparse(url)
-            scheme = '{uri.scheme}'.format(uri=parsed_uri)
-            if scheme != 'http' and scheme != 'https':
-                raise Exception(f"Unsupported schema {scheme}")
-            result = '{uri.netloc}'.format(uri=parsed_uri)
+            ip, port = parseUrl(url)
             cprint(
-                f"[+] Going to test url: {url} ({socket.gethostbyname(result)})", "yellow")
-            log4jExploit(q, url, 80 if scheme == 'http' else 443,
-                         socket.gethostbyname(result), skip_forms)
+                f"[+] Going to test url: {url} ({ip})", "yellow")
+            log4jExploit(q, url, port,
+                         ip, skip_forms)
         except KeyboardInterrupt:
             server_socket.close()
             sys.exit(0)
