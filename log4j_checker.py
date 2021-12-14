@@ -40,7 +40,6 @@ def getAllForms(url):
     try:
         res = requests.get(url, timeout=10)
     except Exception as e:
-        print(e)
         return results
     content = bs(res.text, 'html.parser')
     forms = content.findAll('form')
