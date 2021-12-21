@@ -36,4 +36,5 @@ optional arguments:
 ## Disclaimer
 
 This tool is meant to be used for testing your own systems.
- 
+
+**IMPORTANT NOTE**: This tool does not ensure that your server is NOT vulnerable even if the outcome is negative. That's because your application might log the malicious payload somewhere else and it's not possible to cover all the cases. So the best way to check if you are vulnerable is to look for the vulnerable packages (i.e. log4j-core*.jar and log4j-api*.jar ) through the entire filesystem. 
